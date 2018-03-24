@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:tns="http://jw.nju.edu.cn/wsdl"
+        xmlns:wsdl="http://www.w3.org/ns/wsdl"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:wsoap="http://www.w3.org/ns/wsdl/soap"
+        name="StuInfoService" targetNamespace="http://jw.nju.edu.cn/wsdl"
+       >
+
+    <documentation>学生个人信息管理服务</documentation>
+
+    <import namespace="http://jw.nju.edu.cn/fault/wsdl" location="StuInfoFault.wsdl"/>
+
+    <wsdl:types>
+        <xsd:import
+                namespace="http://jw.nju.edu.cn/schema"
+                schemaLocation="../xsd/Student.xsd"/>
+
+        <xsd:import
+                namespace="http://jw.nju.edu.cn/schema"
+                schemaLocation="../xsd/StuInfoFault.xsd"/>
+    </wsdl:types>
+
+    <wsdl:interface name="StuInfoInterface" extends="">
+        <wsdl:operation name="getInfo">
+            <wsdl:input messageLabel="In" element="tns:学号"/>
+            <wsdl:output messageLabel="out" message="tns:学生信息"/>
+            <wsdl:outfault ref="fault:idNotFoundFault" messageLabel="Out"/>
+        </wsdl:operation>
+
+        <wsdl:operation name="addInfo">
+            <wsdl:input messageLabel="In" element="tns:学生信息"/>
+            <wsdl:output messageLabel="out" message="tns:学生信息"/>
+            <wsdl:outfault ref="fault:studentIdFault" messageLabel="Out"/>
+            <wsdl:outfault ref="fault:courseIdFault" messageLabel="Out"/>
+            <wsdl:outfault ref="fault:basicMessageFault" messagLabel="Out"/>
+        </wsdl:operation>
+
+        <wsdl:operation name="delInfo">
+            <wsdl:input messageLabel="In" element="tns:学号"/>
+            <wsdl:output messageLabel="out" message="tns:学生信息"/>
+            <wsdl:outfault ref="fault:studentIdFault" messageLabel="Out"/>
+            <wsdl:outfault ref="fault:courseIdFault" messageLabel="Out"/>
+            <wsdl:outfault ref="fault:basicMessageFault" messagLabel="Out"/>
+        </wsdl:operation>
+
+        <wsdl:operation name="modifyInfo">
+            <wsdl:input messageLabel="In" element="tns:学生信息"/>
+            <wsdl:output messageLabel="out" message="tns:学生信息"/>
+            <wsdl:outfault ref="fault:studentIdFault" messageLabel="Out"/>
+            <wsdl:outfault ref="fault:courseIdFault" messageLabel="Out"/>
+            <wsdl:outfault ref="fault:basicMessageFault" messagLabel="Out"/>
+        </wsdl:operation>
+    </wsdl:interface>
+
+    <wsdl:binding
+            name="StuInfoSOAP" interface="tns:StuInfoInterface"
+            type="http://www.w3.org/ns/wsdl/soap"
+            wsoap:protocol="http://www.w3.org/2003/05/soap/bindings/HTTP/">
+
+        <wsdl:operation ref="tns:getInfo"
+                        wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
+        <wsdl:operation ref="tns:addInfo"
+                        wsoap:mep="http://www.w3.org/2003/05/soap/mep/request-response"/>
+        <wsdl:operation ref="tns:delInfo"
+                        wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
+        <wsdl:operation ref="tns:modifyInfo"
+                        wsoap:mep="http://www.w3.org/2003/05/soap/mep/reauest-response"/>
+
+        <wsdl:fault ref="fault:idNotFoundFault" wsoap:code="soap:Sender"/>
+        <wsdl:fault ref="fault:studentIdFault" wsoap:code="soap:Sender"/>
+        <wsdl:fault ref="fault:courseIdFault" wsoap:code="soap:Sender"/>
+        <wsdl:fault ref="fault:basicMessageFault" wsoap:code="soap:Sender"/>
+    </wsdl:binding>
+
+    <wsdl:service name="StuInfoService" interface="tns:stuScoreInterface">
+        <wsdl:endpoint name="StuInfoInterface" binding="tns:StuInfoSOAP" address="http://www.nju.edu.cn:8080/stuInfo"/>
+    </wsdl:service>
+</wsdl:definitions>

@@ -1,58 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <definitions
-        xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata"
-        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-        xmlns:tns="http://jw.nju.edu.cn/schema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-        xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://jw.nju.edu.cn/schema"
-        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns="http://www.w3.org/ns/wsdl"
+        targetNamespace="http://jw.nju.edu.cn/wsdl"
+        xmlns:tns="http://jw.nju.edu.cn/wsdl"
+        xmlns:fault="http://jw.nju.edu.cn/fault/wsdl"
+        xmlns:wsoap="http://www.w3.org/ns/wsdl/soap"
+        xmlns:soap="http://www.w3.org/2003/05/soap-envelope"
+        xmlns:wsdlx="http://www.w3.org/2006/01/wsdl-extensions"
         name="MyAuthService">
-    <documentation>学生账号认证服务描述</documentation>
+
+    <documentation>学生账号认证服务</documentation>
+
     <types>
-        <xsd:schema targetNamespace="http://jw.nju.edu.cn/schema">
-            <xsd:include schemaLocation="../xsd/Authentication.xsd" />
-            <xsd:include schemaLocation="../xsd/SystemFault.xsd" />
-        </xsd:schema>
+        <xs:import
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                namespace="http://jw.nju.edu.cn/schema"
+                schemaLocation="../xsd/Auth.xsd"/>
+        <xs:import
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                namespace="http://jw.nju.edu.cn/schema"
+                schemaLocation="../xsd/AuthFault.xsd"/>
     </types>
-    <message name="verify">
-        <part name="parameters" element="tns:认证请求" />
-    </message>
-    <message name="verifyResponse">
-        <part name="parameters" element="tns:验证信息" />
-    </message>
-    <message name="IdNotFoundException">
-        <part name="fault" element="tns:NotFoundFault" />
-    </message>
-    <message name="PswErrorException">
-        <part name="fault" element="tns:AuthFault" />
-    </message>
-    <portType name="MyAuth">
-        <operation name="verify">
-            <input message="tns:verify" wsam:Action="auth/verifyRequest" />
-            <output message="tns:verifyResponse" wsam:Action="auth/verifyResponse" />
-            <fault name="IdNotFoundException" message="tns:IdNotFoundException" wsam:Action="auth/verify/Fault/IdNotFoundException" />
-            <fault name="PswErrorException" message="tns:PswErrorException" wsam:Action="auth/verify/Fault/PswErrorException" />
+
+    <interface name="studentAuthInterface" extends="fault:faultInterface">
+
+        <operation name="verify"
+                   pattern="http://www.w3.org/ns/wsdl/in-out"
+                   wsdlx:safe="true">
+            <input messageLabel="In" element="tns:认证请求"/>
+            <output messageLabel="Out" element="tns:验证信息"/>
+            <outfault ref="fault:AuthFault" messageLabel="Out"/>
+            <outfault ref="fault:NotFoundFault" messageLabel="Out"/>
         </operation>
-    </portType>
-    <wsdl:binding name="MyAuthPortBinding" type="tns:MyAuth">
-        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <operation name="verify">
-            <soap:operation soapAction="auth/verify"/>
-            <input>
-                <soap:body use="literal" />
-            </input>
-            <output>
-                <soap:body use="literal" />
-            </output>
-            <fault name="IdNotFoundException">
-                <soap:fault name="IdNotFoundException" use="literal" />
-            </fault>
-            <fault name="PswErrorException">
-                <soap:fault name="PswErrorException" use="literal" />
-            </fault>
-        </operation>
-    </wsdl:binding>
-    <service name="MyAuthService">
-        <port name="AuthPort" binding="tns:MyAuthPortBinding">
-            <soap:address location="http://localhost:8080/soap-api/auth" />
-        </port>
+
+    </interface>
+
+    <binding name="studentAuthSOAPBinding"
+             interface="tns:studentAuthInterface"
+             type="http://www.w3.org/ns/wsdl/soap"
+             wsoap:protocol="http://www.w3.org/2003/05/soap/bindings/HTTP/">
+
+        <fault ref="fault:AuthFault" wsoap:code="soap:Sender"/>
+        <fault ref="fault:NotFoundFault" wsoap:code="soap:Sender"/>
+
+        <operation ref="tns:verify"
+                   wsoap:mep="http://www.w3.org/2003/05/soap/mep/request-response"/>
+
+    </binding>
+
+    <service name="studentAuthService"
+             interface="tns:studentAuthInterface">
+
+        <endpoint name="studentAuthEndPoint"
+                  binding="tns:studentAuthSOAPBinding"
+                  address="http://jw.nju.edu.cn:8080/Auth"/>
     </service>
+
 </definitions>
